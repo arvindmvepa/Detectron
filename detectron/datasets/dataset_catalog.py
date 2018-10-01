@@ -24,7 +24,11 @@ import os
 
 
 # Path to data dir
-_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+### UPDATE
+#_DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
+
+_DATA_DIR = "/home/arvind/kaggle_coco"
 
 # Required dataset entry keys
 _IM_DIR = 'image_directory'
@@ -201,6 +205,18 @@ _DATASETS = {
             _DATA_DIR + '/VOC2012/annotations/voc_2012_val.json',
         _DEVKIT_DIR:
             _DATA_DIR + '/VOC2012/VOCdevkit2012'
+    },
+    'rsna_train': {
+        _IM_DIR:
+            _DATA_DIR + '/train',
+        _ANN_FN:
+            _DATA_DIR + '/annotations/train.json'
+    },
+    'rsna_val': {
+        _IM_DIR:
+            _DATA_DIR + '/val',
+        _ANN_FN:
+            _DATA_DIR + '/annotations/val.json'
     }
 }
 
