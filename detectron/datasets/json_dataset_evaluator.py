@@ -199,6 +199,7 @@ def _coco_bbox_results_one_category(json_dataset, boxes, cat_id):
 def _do_detection_eval(json_dataset, res_file, output_dir):
     coco_dt = json_dataset.COCO.loadRes(str(res_file))
     coco_eval = COCOeval(json_dataset.COCO, coco_dt, 'bbox')
+    coco_eval.params.iouThrs = np.linspace(.4, 0.75, np.round((0.75 - .4) / .05) + 1, endpoint=True)
     coco_eval.evaluate()
     coco_eval.accumulate()
     _log_detection_eval_metrics(json_dataset, coco_eval)
@@ -216,8 +217,8 @@ def _log_detection_eval_metrics(json_dataset, coco_eval):
         assert np.isclose(iou_thr, thr)
         return ind
 
-    IoU_lo_thresh = 0.5
-    IoU_hi_thresh = 0.95
+    IoU_lo_thresh = 0.40
+    IoU_hi_thresh = 0.75
     ind_lo = _get_thr_ind(coco_eval, IoU_lo_thresh)
     ind_hi = _get_thr_ind(coco_eval, IoU_hi_thresh)
     # precision has dims (iou, recall, cls, area range, max dets)
