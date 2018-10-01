@@ -34,6 +34,7 @@ import logging
 import numpy as np
 import os
 import yaml
+import pydicom
 
 from caffe2.python import core
 from caffe2.python import workspace
@@ -184,7 +185,11 @@ def generate_proposals_on_roidb(
         total_num_images = num_images
     for i in range(num_images):
         roidb_ids[i] = roidb[i]['id']
-        im = cv2.imread(roidb[i]['image'])
+
+        im = pydicom.read_file(roidb[i]['image']).pixel_array
+        if len(im.shape) != 3 or im.shape[2] != 3:
+            im = np.stack((im,) * 3, -1)
+
         with c2_utils.NamedCudaScope(gpu_id):
             _t.tic()
             roidb_boxes[i], roidb_scores[i] = im_proposals(model, im)

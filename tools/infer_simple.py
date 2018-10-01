@@ -32,6 +32,8 @@ import logging
 import os
 import sys
 import time
+import pydicom
+import numpy as np
 
 from caffe2.python import workspace
 
@@ -131,7 +133,11 @@ def main(args):
             args.output_dir, '{}'.format(os.path.basename(im_name) + '.' + args.output_ext)
         )
         logger.info('Processing {} -> {}'.format(im_name, out_name))
-        im = cv2.imread(im_name)
+
+        im = pydicom.read_file(im_name).pixel_array
+        if len(im.shape) != 3 or im.shape[2] != 3:
+            im = np.stack((im,) * 3, -1)
+
         timers = defaultdict(Timer)
         t = time.time()
         with c2_utils.NamedCudaScope(0):

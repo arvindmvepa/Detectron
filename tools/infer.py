@@ -33,6 +33,8 @@ import logging
 import os
 import sys
 import yaml
+import pydicom
+import numpy as np
 
 from caffe2.python import workspace
 
@@ -120,7 +122,10 @@ def main(args):
     logger = logging.getLogger(__name__)
     dummy_coco_dataset = dummy_datasets.get_coco_dataset()
     cfg_orig = load_cfg(yaml.dump(cfg))
-    im = cv2.imread(args.im_file)
+
+    im = pydicom.read_file(args.im_file).pixel_array
+    if len(im.shape) != 3 or im.shape[2] != 3:
+        im = np.stack((im,) * 3, -1)
 
     if args.rpn_pkl is not None:
         proposal_boxes, _proposal_scores = get_rpn_box_proposals(im, args)

@@ -37,6 +37,7 @@ import numpy as np
 import os
 import pprint
 import sys
+import pydicom
 
 import caffe2.python.utils as putils
 from caffe2.python import core, workspace
@@ -570,7 +571,12 @@ def verify_model(args, model_pb, test_img_file):
     ]
 
     print('Loading test file {}...'.format(test_img_file))
-    test_img = cv2.imread(test_img_file)
+
+    test_img = pydicom.read_file(test_img_file).pixel_array
+    if len(test_img.shape) != 3 or test_img.shape[2] != 3:
+        test_img = np.stack((test_img,) * 3, -1)
+
+
     assert test_img is not None
 
     def _run_cfg_func(im, blobs):

@@ -30,6 +30,7 @@ from __future__ import unicode_literals
 
 import cv2
 import logging
+import pydicom
 import numpy as np
 
 from detectron.core.config import cfg
@@ -98,7 +99,11 @@ def _get_image_blob(roidb):
     processed_ims = []
     im_scales = []
     for i in range(num_images):
-        im = cv2.imread(roidb[i]['image'])
+
+        im = pydicom.read_file(roidb[i]['image']).pixel_array
+        if len(im.shape) != 3 or im.shape[2] != 3:
+            im = np.stack((im,) * 3, -1)
+
         assert im is not None, \
             'Failed to read image \'{}\''.format(roidb[i]['image'])
         if roidb[i]['flipped']:

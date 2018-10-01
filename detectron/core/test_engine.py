@@ -27,6 +27,7 @@ import logging
 import numpy as np
 import os
 import yaml
+import pydicom
 
 from caffe2.python import workspace
 
@@ -252,7 +253,10 @@ def test_net(
             # in-network RPN; 1-stage models don't require proposals.
             box_proposals = None
 
-        im = cv2.imread(entry['image'])
+        im = pydicom.read_file(entry['image']).pixel_array
+        if len(im.shape) != 3 or im.shape[2] != 3:
+            im = np.stack((im,) * 3, -1)
+
         with c2_utils.NamedCudaScope(gpu_id):
             cls_boxes_i, cls_segms_i, cls_keyps_i = im_detect_all(
                 model, im, box_proposals, timers

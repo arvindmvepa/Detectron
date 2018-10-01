@@ -27,6 +27,8 @@ import cPickle as pickle
 import cv2
 import os
 import sys
+import pydicom
+import numpy as np
 
 from detectron.datasets.json_dataset import JsonDataset
 import detectron.utils.vis as vis_utils
@@ -106,7 +108,10 @@ def vis(dataset, detections_pkl, thresh, output_dir, limit=0):
         if ix % 10 == 0:
             print('{:d}/{:d}'.format(ix + 1, len(roidb)))
 
-        im = cv2.imread(entry['image'])
+        im = pydicom.read_file(entry['image']).pixel_array
+        if len(im.shape) != 3 or im.shape[2] != 3:
+            im = np.stack((im,) * 3, -1)
+
         im_name = os.path.splitext(os.path.basename(entry['image']))[0]
 
         cls_boxes_i = [
