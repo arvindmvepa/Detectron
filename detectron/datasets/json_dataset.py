@@ -56,46 +56,29 @@ class JsonDataset(object):
             'Unknown dataset name: {}'.format(name)
         assert os.path.exists(dataset_catalog.get_im_dir(name)), \
             'Im dir \'{}\' not found'.format(dataset_catalog.get_im_dir(name))
+        assert os.path.exists(dataset_catalog.get_ann_fn(name)), \
+            'Ann fn \'{}\' not found'.format(dataset_catalog.get_ann_fn(name))
         logger.debug('Creating: {}'.format(name))
         self.name = name
         self.image_directory = dataset_catalog.get_im_dir(name)
         self.image_prefix = dataset_catalog.get_im_prefix(name)
-        self.anns_exist = dataset_catalog.get_ann_fn(name) is not None
-        if self.anns_exist:
-            self.COCO = COCO(dataset_catalog.get_ann_fn(name))
-            self.debug_timer = Timer()
-            # Set up dataset classes
-            category_ids = self.COCO.getCatIds()
-            categories = [c['name'] for c in self.COCO.loadCats(category_ids)]
-            self.category_to_id_map = dict(zip(categories, category_ids))
-            self.classes = ['__background__'] + categories
-            self.num_classes = len(self.classes)
-            self.json_category_id_to_contiguous_id = {
-                v: i + 1
-                for i, v in enumerate(self.COCO.getCatIds())
-            }
-            self.contiguous_category_id_to_json_id = {
-                v: k
-                for k, v in self.json_category_id_to_contiguous_id.items()
-            }
-            self._init_keypoints()
-        else:
-            ### HARDCODE
-            self.debug_timer = Timer()
-            # Set up dataset classes
-            category_ids = [1]
-            categories = ["Lung Opacity"]
-            self.category_to_id_map = dict(zip(categories, category_ids))
-            self.classes = ['__background__'] + categories
-            self.num_classes = len(self.classes)
-            self.json_category_id_to_contiguous_id = {
-                v: i + 1
-                for i, v in enumerate(category_ids)
-            }
-            self.contiguous_category_id_to_json_id = {
-                v: k
-                for k, v in self.json_category_id_to_contiguous_id.items()
-            }
+        self.COCO = COCO(dataset_catalog.get_ann_fn(name))
+        self.debug_timer = Timer()
+        # Set up dataset classes
+        category_ids = self.COCO.getCatIds()
+        categories = [c['name'] for c in self.COCO.loadCats(category_ids)]
+        self.category_to_id_map = dict(zip(categories, category_ids))
+        self.classes = ['__background__'] + categories
+        self.num_classes = len(self.classes)
+        self.json_category_id_to_contiguous_id = {
+            v: i + 1
+            for i, v in enumerate(self.COCO.getCatIds())
+        }
+        self.contiguous_category_id_to_json_id = {
+            v: k
+            for k, v in self.json_category_id_to_contiguous_id.items()
+        }
+        self._init_keypoints()
 
     def get_roidb(
         self,
@@ -114,14 +97,11 @@ class JsonDataset(object):
         assert gt is True or crowd_filter_thresh == 0, \
             'Crowd filter threshold must be 0 if ground-truth annotations ' \
             'are not included.'
-        ### NEW FUNCTION HERE
         image_ids = self.COCO.getImgIds()
         image_ids.sort()
-        ### NEW FUNCTION HERE
         roidb = copy.deepcopy(self.COCO.loadImgs(image_ids))
         for entry in roidb:
             self._prep_roidb_entry(entry)
-        ### REMOVE THIS, set to false
         if gt:
             # Include ground-truth object annotations
             self.debug_timer.tic()
