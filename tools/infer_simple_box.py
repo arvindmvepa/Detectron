@@ -32,7 +32,6 @@ import logging
 import os
 import sys
 import time
-import pydicom
 import numpy as np
 
 from caffe2.python import workspace
