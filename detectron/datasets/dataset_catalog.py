@@ -217,7 +217,7 @@ _DATASETS = {
             _DATA_DIR + '/val',
         _ANN_FN:
             _DATA_DIR + '/annotations/val.json'
-    }
+    },
 }
 
 
