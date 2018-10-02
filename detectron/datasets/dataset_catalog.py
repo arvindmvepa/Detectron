@@ -217,6 +217,10 @@ _DATASETS = {
             _DATA_DIR + '/val',
         _ANN_FN:
             _DATA_DIR + '/annotations/val.json'
+    },
+    'rsna_test': {
+        _IM_DIR:
+            _DATA_DIR + '/test',
     }
 }
 
