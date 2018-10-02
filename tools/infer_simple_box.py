@@ -133,9 +133,7 @@ def main(args):
         )
         logger.info('Processing {} -> {}'.format(im_name, out_name))
 
-        im = pydicom.read_file(im_name).pixel_array
-        if len(im.shape) != 3 or im.shape[2] != 3:
-            im = np.stack((im,) * 3, -1)
+        im = cv2.imread(im_name)
 
         timers = defaultdict(Timer)
         t = time.time()
